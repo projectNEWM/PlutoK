@@ -1,4 +1,4 @@
-package io.newm.plutok.flat.zigzag
+package io.newm.plutok.uplc.flat.zigzag
 
 import java.math.BigInteger
 
