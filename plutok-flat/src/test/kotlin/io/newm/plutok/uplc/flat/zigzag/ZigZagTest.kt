@@ -1,4 +1,4 @@
-package io.newm.plutok.flat.zigzag
+package io.newm.plutok.uplc.flat.zigzag
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.params.ParameterizedTest
