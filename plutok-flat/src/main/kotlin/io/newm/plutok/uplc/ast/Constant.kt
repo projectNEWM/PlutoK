@@ -1,11 +1,19 @@
 package io.newm.plutok.uplc.ast
 
+import io.newm.plutok.uplc.flat.FlatEncoder
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import java.math.BigInteger
 
+@Serializable(with = ConstantSerializer::class)
 sealed interface Constant
 
 // tag: 0
-data class IntegerConstant(val value: BigInteger) : Constant
+data class IntegerConstant(@Contextual val value: BigInteger) : Constant
 
 // tag: 1
 data class ByteStringConstant(val value: ByteArray) : Constant {
@@ -41,3 +49,27 @@ data class ApplyConstant(val value: Constant, val type: Type) : Constant
 
 // tag: 8
 data class DataConstant(val value: PlutusData) : Constant
+
+object ConstantSerializer : KSerializer<Constant> {
+    override val descriptor = buildClassSerialDescriptor("Constant")
+
+    private const val CONSTANT_TAG_WIDTH = 4
+
+    override fun deserialize(decoder: Decoder): Constant {
+        TODO()
+    }
+
+    override fun serialize(encoder: Encoder, value: Constant) {
+        require(encoder is FlatEncoder)
+        when (value) {
+            is IntegerConstant -> {
+                encoder.encodeListWith(listOf(0)) { tag ->
+                    encoder.safeEncodeBits(CONSTANT_TAG_WIDTH, tag as Int)
+                }
+                encoder.encodeBigInteger(value.value)
+            }
+
+            else -> throw IllegalArgumentException("Unknown constant type: $value")
+        }
+    }
+}
