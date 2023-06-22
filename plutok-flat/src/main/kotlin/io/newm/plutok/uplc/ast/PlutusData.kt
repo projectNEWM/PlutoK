@@ -4,7 +4,7 @@ import java.math.BigInteger
 
 sealed interface PlutusData
 
-data class ConstrPlutusData(val constr: Int, val plutusData: PlutusData) : PlutusData
+data class ConstrPlutusData(val value: Constr) : PlutusData
 
 data class BigIntegerPlutusData(val value: BigInteger) : PlutusData
 

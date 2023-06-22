@@ -90,4 +90,5 @@ enum class BuiltinFunction(val index: Int) {
 fun String.toBuiltinFunction(): BuiltinFunction =
     BuiltinFunction.valueOf(this.replaceFirstChar { if (it.isLowerCase()) it.uppercaseChar() else it })
 
-fun BuiltinFunction.toString(): String = this.name.replaceFirstChar { if (it.isUpperCase()) it.lowercaseChar() else it }
+fun BuiltinFunction.toDisplayName(): String =
+    this.name.replaceFirstChar { if (it.isUpperCase()) it.lowercaseChar() else it }

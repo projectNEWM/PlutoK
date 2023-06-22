@@ -72,7 +72,8 @@ allprojects {
             freeCompilerArgs = listOf(
                 "-Xjsr305=strict",
                 "-opt-in=kotlin.RequiresOptIn",
-                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
             )
             jvmTarget = "17"
         }

@@ -22,6 +22,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:${Versions.logback}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${Versions.coroutines}")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:${Versions.kotlinxSerialization}")
 
     testImplementation("io.mockk:mockk:${Versions.mockk}")
     testImplementation("com.google.truth:truth:${Versions.googleTruth}")
