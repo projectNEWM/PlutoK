@@ -12,7 +12,7 @@ object ByteStringType : Type
 
 object UnitType : Type
 
-data class ListType(val type: Type) : Type
+data class ListType(val subType: Type) : Type
 
 data class PairType(val type1: Type, val type2: Type) : Type
 
