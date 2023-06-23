@@ -1,5 +1,24 @@
 package io.newm.plutok.uplc.flat
 
+import io.newm.plutok.uplc.ast.ApplyConstant
+import io.newm.plutok.uplc.ast.BoolConstant
+import io.newm.plutok.uplc.ast.BoolType
+import io.newm.plutok.uplc.ast.ByteStringConstant
+import io.newm.plutok.uplc.ast.ByteStringType
+import io.newm.plutok.uplc.ast.Constant
+import io.newm.plutok.uplc.ast.DataConstant
+import io.newm.plutok.uplc.ast.DataType
+import io.newm.plutok.uplc.ast.IntegerConstant
+import io.newm.plutok.uplc.ast.IntegerType
+import io.newm.plutok.uplc.ast.ListType
+import io.newm.plutok.uplc.ast.PairType
+import io.newm.plutok.uplc.ast.ProtoListConstant
+import io.newm.plutok.uplc.ast.ProtoPairConstant
+import io.newm.plutok.uplc.ast.StringConstant
+import io.newm.plutok.uplc.ast.StringType
+import io.newm.plutok.uplc.ast.Type
+import io.newm.plutok.uplc.ast.UnitConstant
+import io.newm.plutok.uplc.ast.UnitType
 import io.newm.plutok.uplc.flat.zigzag.zigZagEncode
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.encoding.AbstractEncoder
@@ -59,12 +78,80 @@ class FlatEncoder : AbstractEncoder() {
         currentByte = (value.toUInt() shl (8 - usedBits)).toUByte()
     }
 
-    fun encodeListWith(list: List<Any>, encoderFunc: (Any) -> Unit) {
+    fun <T> encodeListWith(list: List<T>, encoderFunc: (T) -> Unit) {
         for (item in list) {
             encodeOne()
             encoderFunc(item)
         }
         encodeZero()
+    }
+
+    fun encodeTypeToList(type: Type, typeEncode: MutableList<Int>) {
+        when (type) {
+            BoolType -> typeEncode.add(4)
+            IntegerType -> typeEncode.add(0)
+            StringType -> typeEncode.add(2)
+            ByteStringType -> typeEncode.add(1)
+            UnitType -> typeEncode.add(3)
+            is ListType -> {
+                typeEncode.add(7)
+                typeEncode.add(5)
+                encodeTypeToList(type.subType, typeEncode)
+            }
+
+            is PairType -> {
+                typeEncode.add(7)
+                typeEncode.add(7)
+                typeEncode.add(6)
+                encodeTypeToList(type.type1, typeEncode)
+                encodeTypeToList(type.type2, typeEncode)
+            }
+
+            DataType -> typeEncode.add(8)
+        }
+    }
+
+    fun encodeConstantValue(constant: Constant) {
+        when (constant) {
+            is ApplyConstant -> TODO()
+            is BoolConstant -> TODO()
+            is ByteStringConstant -> TODO()
+            is DataConstant -> TODO()
+            is IntegerConstant -> encodeBigInteger(constant.value)
+            is ProtoListConstant -> encodeListWith(constant.value) { encodeConstantValue(it as Constant) }
+            is ProtoPairConstant -> TODO()
+            is StringConstant -> TODO()
+            UnitConstant -> {}
+        }
+        // fn encode_constant_value(x: &Constant, e: &mut Encoder) -> Result<(), en::Error> {
+        //    match x {
+        //        Constant::Integer(x) => {
+        //            let x: i128 = x.try_into().unwrap();
+        //
+        //            x.encode(e)
+        //        }
+        //        Constant::ByteString(b) => b.encode(e),
+        //        Constant::String(s) => s.encode(e),
+        //        Constant::Unit => Ok(()),
+        //        Constant::Bool(b) => b.encode(e),
+        //        Constant::ProtoList(_, list) => {
+        //            e.encode_list_with(list, encode_constant_value)?;
+        //            Ok(())
+        //        }
+        //        Constant::ProtoPair(_, _, a, b) => {
+        //            encode_constant_value(a, e)?;
+        //
+        //            encode_constant_value(b, e)
+        //        }
+        //        Constant::Data(data) => {
+        //            let cbor = data
+        //                .encode_fragment()
+        //                .map_err(|err| en::Error::Message(err.to_string()))?;
+        //
+        //            cbor.encode(e)
+        //        }
+        //    }
+        // }
     }
 
     /**

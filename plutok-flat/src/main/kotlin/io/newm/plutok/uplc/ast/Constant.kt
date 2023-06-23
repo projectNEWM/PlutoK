@@ -64,12 +64,27 @@ object ConstantSerializer : KSerializer<Constant> {
         when (value) {
             is IntegerConstant -> {
                 encoder.encodeListWith(listOf(0)) { tag ->
-                    encoder.safeEncodeBits(CONSTANT_TAG_WIDTH, tag as Int)
+                    encoder.safeEncodeBits(CONSTANT_TAG_WIDTH, tag)
                 }
                 encoder.encodeBigInteger(value.value)
             }
 
-            else -> throw IllegalArgumentException("Unknown constant type: $value")
+            is ProtoListConstant -> {
+                val typeEncode = mutableListOf(7, 5)
+                encoder.encodeTypeToList(value.type, typeEncode)
+                encoder.encodeListWith(typeEncode) { tag ->
+                    encoder.safeEncodeBits(CONSTANT_TAG_WIDTH, tag)
+                }
+                encoder.encodeListWith(value.value) { encoder.encodeConstantValue(it) }
+            }
+
+            is ApplyConstant -> TODO()
+            is BoolConstant -> TODO()
+            is ByteStringConstant -> TODO()
+            is DataConstant -> TODO()
+            is ProtoPairConstant -> TODO()
+            is StringConstant -> TODO()
+            UnitConstant -> TODO()
         }
     }
 }

@@ -3,8 +3,11 @@ package io.newm.plutok.uplc.flat
 import com.google.common.truth.Truth.assertThat
 import io.newm.plutok.uplc.ast.ConstantTerm
 import io.newm.plutok.uplc.ast.IntegerConstant
+import io.newm.plutok.uplc.ast.IntegerType
+import io.newm.plutok.uplc.ast.ListType
 import io.newm.plutok.uplc.ast.Name
 import io.newm.plutok.uplc.ast.Program
+import io.newm.plutok.uplc.ast.ProtoListConstant
 import io.newm.plutok.uplc.ast.Version
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -25,6 +28,45 @@ class FlatTest {
             0b01001000.toByte(),
             0b00000101.toByte(),
             0b10000001.toByte()
+        )
+
+        val actualBytes: ByteArray = encodeToFlat(program)
+
+        assertThat(actualBytes).isEqualTo(expectedBytes)
+    }
+
+    @Test
+    fun `test flat-encode List List Integer`() {
+        val program = Program<Name>(
+            version = Version(1, 0, 0),
+            term = ConstantTerm<Name>(
+                ProtoListConstant(
+                    type = ListType(IntegerType),
+                    value = listOf(
+                        ProtoListConstant(
+                            type = IntegerType,
+                            value = listOf(IntegerConstant(7.toBigInteger()))
+                        ),
+                        ProtoListConstant(
+                            type = IntegerType,
+                            value = listOf(IntegerConstant(5.toBigInteger()))
+                        )
+                    )
+                )
+            )
+        )
+
+        val expectedBytes = byteArrayOf(
+            0b00000001.toByte(),
+            0b00000000.toByte(),
+            0b00000000.toByte(),
+            0b01001011.toByte(),
+            0b11010110.toByte(),
+            0b11110101.toByte(),
+            0b10000011.toByte(),
+            0b00001110.toByte(),
+            0b01100001.toByte(),
+            0b01000001.toByte()
         )
 
         val actualBytes: ByteArray = encodeToFlat(program)
