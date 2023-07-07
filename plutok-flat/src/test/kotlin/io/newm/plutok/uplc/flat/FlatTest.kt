@@ -106,4 +106,30 @@ class FlatTest {
         }
         assertThat(exception.message).isEqualTo("Overflow detected, cannot fit 9 in 3 bits.")
     }
+
+    @Test
+    fun `test encode boolean true`() {
+        val encoder = FlatEncoder()
+        val expectedBytes = byteArrayOf(
+            0b10000001.toByte(),
+        )
+        encoder.encodeValue(true)
+        encoder.encodeFiller()
+        val actualBytes = encoder.toByteArray()
+
+        assertThat(actualBytes).isEqualTo(expectedBytes)
+    }
+
+    @Test
+    fun `test encode boolean false`() {
+        val encoder = FlatEncoder()
+        val expectedBytes = byteArrayOf(
+            0b00000001.toByte(),
+        )
+        encoder.encodeValue(false)
+        encoder.encodeFiller()
+        val actualBytes = encoder.toByteArray()
+
+        assertThat(actualBytes).isEqualTo(expectedBytes)
+    }
 }

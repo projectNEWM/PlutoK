@@ -41,6 +41,7 @@ class FlatEncoder : AbstractEncoder() {
             is Long -> encodeBigInteger(value.toBigInteger())
             is BigInteger -> encodeBigInteger(value)
             is UByte -> encodeUByte(value)
+            is Boolean -> encodeBoolean(value)
             else -> super.encodeValue(value)
         }
     }
@@ -64,6 +65,19 @@ class FlatEncoder : AbstractEncoder() {
     fun encodeBigInteger(value: BigInteger) {
         val i = value.zigZagEncode()
         encodeWord(i)
+    }
+
+    /**
+     * Encode a boolean value. This is byte alignment agnostic.
+     * Uses the next unused bit in the current byte to encode this information.
+     * One for true and Zero for false
+     */
+    override fun encodeBoolean(value: Boolean) {
+        if (value) {
+            encodeOne()
+        } else {
+            encodeZero()
+        }
     }
 
     /**
